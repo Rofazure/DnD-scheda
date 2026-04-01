@@ -23,8 +23,7 @@ except ImportError:
     REPORTLAB_OK = False
 
 # ── cartella di salvataggio di default ────────────────────────────────────────
-DEFAULT_DIR = os.path.expanduser("~/d&d/personaggi")
-os.makedirs(DEFAULT_DIR, exist_ok=True)
+DEFAULT_DIR = os.path.expanduser("~")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # PALETTE / STILE
@@ -78,6 +77,18 @@ def labeled_text(parent, label, row, col, width=30, height=3, colspan=1):
 class DnDApp(tk.Tk):
     def __init__(self):
         super().__init__()
+        self.withdraw()
+
+        chosen = filedialog.askdirectory(
+            title="Scegli la cartella dove salvare le schede personaggio",
+            initialdir=DEFAULT_DIR
+        )
+        if not chosen:
+            chosen = DEFAULT_DIR
+        self._startup_dir = chosen
+        os.makedirs(chosen, exist_ok=True)
+
+        self.deiconify()
         self.title("D&D 5e — Generatore Schede Personaggio")
         self.configure(bg=BG)
         self.resizable(True, True)
@@ -217,7 +228,7 @@ class DnDApp(tk.Tk):
 
         # ── CARTELLA OUTPUT ──
         sdir = self._section("📁  Cartella di salvataggio")
-        self.save_dir = tk.StringVar(value=DEFAULT_DIR)
+        self.save_dir = tk.StringVar(value=self._startup_dir)
         tk.Entry(sdir, textvariable=self.save_dir, width=60,
                  bg=ENTRY_BG, fg=ENTRY_FG, font=FONT_ENTRY,
                  insertbackground=ENTRY_FG, relief="flat").grid(
